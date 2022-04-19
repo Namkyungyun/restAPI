@@ -2,6 +2,7 @@ package com.restapi.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@DisplayName("mockMVC를 사용하기 위헤 AutoConfigureMockMvc사용")
 public class EventControllerTests {
 
     //mock으로 만들어진 dispatchServlet (가짜 요청)
@@ -42,7 +44,39 @@ public class EventControllerTests {
     ObjectMapper objectMapper;
 
     @Test
+    @DisplayName("DTO로 입력값 제한")
     void createEvent() throws Exception{
+
+        EventDto event = EventDto.builder()
+                .name("Spring")
+                .description("REST API with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022,04, 19, 22,10))
+                .beginEventDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
+                .endEventDateTime(LocalDateTime.of(2022,04, 19, 22,10))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역")
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                        .contentType("application/hal+json;charset=UTF-8")
+                        .accept("application/hal+json;charset=UTF-8")
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()))
+                .andExpect(jsonPath("free").value(Matchers.not(true)));
+    }
+
+    @Test
+    @DisplayName("Bad_Requeest로 입력제한")
+    void createEvent_Bad_Request() throws Exception{
 
         Event event = Event.builder()
                 .id(100)
@@ -66,13 +100,43 @@ public class EventControllerTests {
                         .accept("application/hal+json;charset=UTF-8")
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists())
-                .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()))
-                .andExpect(jsonPath("free").value(Matchers.not(true)));
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @DisplayName("필수값 들어오지 않음")
+    void createEvent_Bad_Request_Empty_Input() throws Exception{
+        EventDto eventDto = EventDto.builder().build();
+
+        this.mockMvc.perform(post("/api/events")
+                            .contentType("application/hal+json;charset=UTF-8")
+                            .content(this.objectMapper.writeValueAsString(eventDto)))
+                    .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @DisplayName("eventValidator를 이용해 어노테이션 미검증 커버")
+    void createEvent_Bad_Request_unstable_Input() throws Exception{
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
+                .closeEnrollmentDateTime(LocalDateTime.of(2022,04, 19, 22,10))
+                .beginEventDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
+                .endEventDateTime(LocalDateTime.of(2022,03, 19, 22,10))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역")
+                .build();
+
+        this.mockMvc.perform(post("/api/events")
+                        .contentType("application/hal+json;charset=UTF-8")
+                        .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+
     }
 
 

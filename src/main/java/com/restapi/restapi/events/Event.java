@@ -1,6 +1,7 @@
 package com.restapi.restapi.events;
 
 import lombok.*;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -24,7 +25,6 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
-
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 }
