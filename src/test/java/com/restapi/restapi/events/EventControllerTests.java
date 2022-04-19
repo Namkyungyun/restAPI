@@ -1,6 +1,7 @@
 package com.restapi.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -43,6 +44,7 @@ public class EventControllerTests {
     void createEvent() throws Exception{
 
         Event event = Event.builder()
+                .id(100)
                 .name("Spring")
                 .description("REST API with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
@@ -53,8 +55,10 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역")
+                .free(true)
+                .offline(false)
                 .build();
-        event.setId(10);
+
         Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(post("/api/events/")
@@ -65,7 +69,10 @@ public class EventControllerTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"));
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("offline").value(Matchers.not(false)));
     }
 
 
