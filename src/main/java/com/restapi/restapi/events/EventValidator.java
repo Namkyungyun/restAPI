@@ -1,6 +1,5 @@
 package com.restapi.restapi.events;
 
-import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 

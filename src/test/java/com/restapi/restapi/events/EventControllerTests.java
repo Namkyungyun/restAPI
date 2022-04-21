@@ -131,11 +131,18 @@ public class EventControllerTests {
                 .limitOfEnrollment(100)
                 .location("강남역")
                 .build();
-
+        //Bad_Request로 받을 수 있는 응답의 본문 메시지를 만드는 법
         this.mockMvc.perform(post("/api/events")
                         .contentType("application/hal+json;charset=UTF-8")
                         .content(this.objectMapper.writeValueAsString(eventDto)))
-                .andExpect(status().isBadRequest());
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())        //응답에 다음과 같은 응답의 데이터는 Errors에서 만들 수 있다.
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+                .andExpect(jsonPath("$[0].rejectValue").exists())
+        ;
 
     }
 
