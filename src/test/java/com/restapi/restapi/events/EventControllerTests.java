@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+//통합테스트
 //단위 테스트라고 보기에는 dispatchServlet, eventCotroller, dataHandler, Converter들이 조합된 채로 동작되는 테스트이기에 단위기테스트라고 보기 어렵다.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -52,8 +52,8 @@ public class EventControllerTests {
                 .description("REST API with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022,04, 19, 22,10))
-                .beginEventDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
-                .endEventDateTime(LocalDateTime.of(2022,04, 19, 22,10))
+                .beginEventDateTime(LocalDateTime.of(2022, 04, 20, 10, 25))
+                .endEventDateTime(LocalDateTime.of(2022,04, 21, 22,10))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -71,7 +71,8 @@ public class EventControllerTests {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()))
-                .andExpect(jsonPath("free").value(Matchers.not(true)));
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(false));
     }
 
     @Test
