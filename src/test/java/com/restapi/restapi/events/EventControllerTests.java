@@ -122,7 +122,7 @@ public class EventControllerTests {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
                 .description("REST API with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
+                .beginEnrollmentDateTime(LocalDateTime.of(2022, 05, 18, 10, 25))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022,04, 19, 22,10))
                 .beginEventDateTime(LocalDateTime.of(2022, 04, 18, 10, 25))
                 .endEventDateTime(LocalDateTime.of(2022,03, 19, 22,10))
